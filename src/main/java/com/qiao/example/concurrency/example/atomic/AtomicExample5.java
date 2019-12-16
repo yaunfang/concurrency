@@ -3,7 +3,8 @@ package com.qiao.example.concurrency.example.atomic;
 
 /*
 *
-*
+* AtomicReferenceFiledUpdate类说明：
+*   原子性的去更新一个类的实例
 * */
 
 import com.qiao.example.concurrency.annoations.ThreadSafe;

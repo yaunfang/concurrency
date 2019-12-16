@@ -3,21 +3,24 @@ package com.qiao.example.concurrency.example.atomic;
 
 /*
 *
-*
 * */
 
-import com.qiao.example.concurrency.annoations.NotThreadSafe;
-import lombok.SneakyThrows;
+import com.qiao.example.concurrency.annoations.ThreadSafe;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
-@NotThreadSafe
+@ThreadSafe
 @Slf4j
-public class AtomicExample1 {
+public class AtomicExample6 {
+
+    // 定义一个AtomicBoolean类
+    private static AtomicBoolean is_update = new AtomicBoolean(false);
 
     // 定义线程数
     public static int clientTotal = 1000;
@@ -25,11 +28,7 @@ public class AtomicExample1 {
     // 定义并发数
     public static int threadTotal = 200;
 
-    //初始化(计数的值)
-    public static int count = 0;
-
-    @SneakyThrows
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
         //定义一个线程池
         ExecutorService executorService = Executors.newCachedThreadPool();
@@ -44,7 +43,7 @@ public class AtomicExample1 {
             executorService.execute(() ->{
                 try{
                     semaphore.acquire();
-                    add();
+                    test();
                     semaphore.release();
                 }catch (Exception e){
                     log.error("exception", 2);
@@ -53,18 +52,17 @@ public class AtomicExample1 {
             });
         }
         countDownLatch.await();
-
         //关闭线程池
         executorService.shutdown();
-
-        log.info("count:{}", count);
+        // 日志打印结果
+        log.info("is_update:{}"+is_update.get());
     }
 
-    /*
-    * 定义一个累加的方法(多次执行)
-    * */
-    private static void add(){
-        count++;
-        log.info("****************我执行了一次*********");
+    /*定义Test方法（只执行一次）*/
+
+    public static void test() {
+        if (is_update.compareAndSet(false,true)){
+            log.info("**********我执行了一次**********");
+        }
     }
 }
